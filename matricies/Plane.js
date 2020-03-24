@@ -8,21 +8,28 @@ class Plane {
         this.vector1 = v1;
         this.vector2 = v2;
         this.point = point;
+
+        this.isValidPlane = this.vector1.isAligned(this.vector2); // checks if the vectors of the plane are aligned
     }
 
     isPointInPlane(point) {
+        if (!this.isValidPlane) return false;
+
         let m1 = new Matrix([Vector.fromPoints(this.point, point), this.vector1, this.vector2]);
 
         return m1.det() === 0;
     }
 
     isCoplanar(vector) {
+        if (!this.isValidPlane) return false;
+
         let m1 = new Matrix([vector, this.vector1, this.vector2]);
 
         return m1.det() === 0;
     }
 
     findLinePlaneIntersect(line) {
+        if (!this.isValidPlane) return Point([NaN]); // obviously the error behaviour can be tweaked, this was just the most useful to my applications
 
         const deltaY = -Matrix.fastDet2d(
             [this.vector1.coordinates[0], this.vector1.coordinates[2]],

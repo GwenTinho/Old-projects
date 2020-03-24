@@ -14,13 +14,18 @@ class Vector {
     }
 
     cross(vector) {
-        if (vector.getDimension() !== 3 || this.getDimension() !== 3) return NaN;
+        r
+        if (vector.getDimension() !== 3 || this.getDimension() !== 3) return Vector.nullVector();
 
-        return new this([
+        return new Vector([
             this.coordinates[1] * vector.coordinates[2] - this.coordinates[2] * vector.coordinates[1],
             this.coordinates[2] * vector.coordinates[0] - this.coordinates[0] * vector.coordinates[2],
             this.coordinates[0] * vector.coordinates[1] - this.coordinates[1] * vector.coordinates[0],
         ]);
+    }
+
+    isAligned(vector) {
+        return this.dot(vector) !== this.getNorm() * vector.getNorm();
     }
 
     getDimension() {
@@ -45,7 +50,7 @@ class Vector {
     }
 
     add(vector) {
-        if (vector.getDimension() !== this.getDimension()) return NaN;
+        if (vector.getDimension() !== this.getDimension()) return Vector.nullVector();
 
         for (let i = 0; i < this.getDimension(); i++) {
             this.coordinates[i] += vector.coordinates[i];
@@ -62,10 +67,12 @@ class Vector {
     }
 
     static fromPoints(p1, p2) {
-        if (p1.getDimension() !== p2.getDimension()) return NaN;
+        if (p1.getDimension() !== p2.getDimension()) return Vector.nullVector();
 
         return new Vector(p1.coordinates.map((coord, i) => p2.coordinates[i] - coord));
     }
 }
+
+Vector.nullVector = () => new Vector([]); // to have resonably consistent typing
 
 export default Vector;
