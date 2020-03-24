@@ -8,13 +8,11 @@ import Plane from "./Plane";
 
 class Triangle extends Plane {
     constructor(A, B, C) { // points A,B,C defining triangle (ABC)
-
+        // we also define all the variables for planar functions
+        super(Vector.fromPoints(A, B), Vector.fromPoints(A, C), A);
         this.A = A;
         this.B = B;
         this.C = C;
-
-        // we also define all the variables for planar functions
-        super(Vector.fromPoints(A, B), Vector.fromPoints(A, C), A);
     }
 
     isPointInTriangle(point) {
@@ -58,7 +56,7 @@ class Triangle extends Plane {
     }
 
     getAngles() { // definition from https://en.wikipedia.org/wiki/Triangle using thm d' Al Kashi
-        const a = Vector.fromPoints(B, C).getNorm();
+        const a = Vector.fromPoints(this.B, this.C).getNorm();
         const b = this.vector2.getNorm();
         const c = this.vector1.getNorm();
         const aSqr = a * a;
