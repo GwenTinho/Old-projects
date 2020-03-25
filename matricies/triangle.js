@@ -18,29 +18,11 @@ class Triangle extends Plane {
     isPointInTriangle(point) {
 
         if (!this.isValidPlane) return false;
+        //if (!this.isCoplanar(point)) return false; already check in isOnSameSide
 
-        // implementation of this code https://blackpawn.com/texts/pointinpoly/default.html
-        /*
-        it is never explained why p1 and p2 are needed for his function though 
-        it is somewhat obvious that we compare 2 points to our line ab to check whether is it towards the third point or away from it
-        as the third point is what we compare our point to. The dot product isnt really used for anything except for checking the direction of the vectors 
-        that we get from the cross products, as a negative dot product implies different directions
-        */
-
-        function sameSide(p1, p2, a, b) {
-            let AB = Vector.fromPoints(a, b);
-            let Ap1 = Vector.fromPoints(a, p1);
-            let Ap2 = Vector.fromPoints(a, p2);
-
-            let cross1 = AB.cross(Ap1);
-            let cross2 = AB.cross(Ap2);
-
-            return cross1.dot(cross2) >= 0;
-        }
-
-        return sameSide(point, this.A, this.B, this.C) &&
-            sameSide(point, this.B, this.A, this.C) &&
-            sameSide(point, this.C, this.A, this.B);
+        return Line.isOnSameSide(point, this.A, this.B, this.C) &&
+            Line.isOnSameSide(point, this.B, this.A, this.C) &&
+            Line.isOnSameSide(point, this.C, this.A, this.B);
     }
 
     getArea() {

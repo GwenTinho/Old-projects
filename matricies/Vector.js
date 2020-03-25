@@ -1,3 +1,5 @@
+import Matrix from "./Matrix";
+
 class Vector {
     constructor(coordinates) {
         this.coordinates = coordinates;
@@ -14,7 +16,6 @@ class Vector {
     }
 
     cross(vector) {
-        r
         if (vector.getDimension() !== 3 || this.getDimension() !== 3) return Vector.nullVector();
 
         return new Vector([
@@ -63,7 +64,7 @@ class Vector {
     }
 
     static checkAligned(v1, v2) {
-        return v1.dot(v2) === v1.getNormSquared() * v2.getNormSquared();
+        return v1.dot(v2) === v1.getNorm() * v2.getNorm();
     }
 
     static fromPoints(p1, p2) {
@@ -71,8 +72,14 @@ class Vector {
 
         return new Vector(p1.coordinates.map((coord, i) => p2.coordinates[i] - coord));
     }
-}
 
-Vector.nullVector = () => new Vector([]); // to have resonably consistent typing
+    static isCoplanar(v1, v2, v3) {
+        return new Matrix([v1, v2, v3]).det() === 0;
+    }
+
+    static nullVector() {
+        return new Vector([]);
+    }
+}
 
 export default Vector;
