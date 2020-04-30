@@ -127,7 +127,7 @@ class Matrix {
     }
 
     swapRow(idx1, idx2) {
-        this.T().swapCol(idx1, idx2).T();
+        return this.T().swapCol(idx1, idx2).T();
     }
 
     multiplyRow(idx, scalar) {
@@ -152,7 +152,7 @@ class Matrix {
 
     rref() {
 
-        const matrix = this.copyInstance();
+        let matrix = this.copyInstance();
         const dims = this.getDimensions();
         const rows = dims[0];
         const columns = dims[1];
