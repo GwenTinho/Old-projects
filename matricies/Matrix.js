@@ -36,8 +36,8 @@ class Matrix {
         }
     }
 
-    get(row, colum) {
-        return this.vectors[colum].coordinates[row];
+    get(row, column) {
+        return this.vectors[column].coordinates[row];
     }
 
     getDimensions() { // row colomn
@@ -117,6 +117,81 @@ class Matrix {
         return accumulator;
     }
 
+    swapCol(idx1, idx2) {
+        const matrix = this.copyInstance();
+        const oldcol = matrix.vectors[idx1];
+        matrix.vectors[idx1] = matrix.vectors[idx2];
+        matrix.vectors[idx2] = oldcol;
+
+        return matrix;
+    }
+
+    swapRow(idx1, idx2) {
+        this.T().swapCol(idx1, idx2).T();
+    }
+
+    multiplyRow(idx, scalar) {
+        const matrix = this.copyInstance();
+
+        for (let i = 0; i < matrix.vectors.length; i++) {
+            matrix.vectors[i].coordinates[idx] *= scalar;
+        }
+
+        return matrix;
+    }
+
+    addRow(oldRow, rowToBeAdded) {
+        const matrix = this.copyInstance();
+
+        for (let i = 0; i < matrix.vectors.length; i++) {
+            matrix.vectors[i].coordinates[oldRow] += matrix.vectors[i].coordinates[rowToBeAdded];
+        }
+
+        return matrix;
+    }
+
+    rref() {
+
+        const matrix = this.copyInstance();
+        const dims = this.getDimensions();
+        const rows = dims[0];
+        const columns = dims[1];
+
+
+        let lead = 0;
+        for (let r = 0; r < rows; r++) {
+            if (columns <= lead) {
+                return getEmptyMatrix();
+            }
+            let i = r;
+            while (matrix.get(i, lead) === 0) {
+                i++;
+                if (rows == i) {
+                    i = r;
+                    lead++;
+                    if (columns == lead) {
+                        return getEmptyMatrix();
+                    }
+                }
+            }
+
+            matrix = matrix.swapRow(i, r);
+
+            let val = matrix.get(r, lead);
+
+            matrix = matrix.multiplyRow(r, val);
+
+            for (let i = 0; i < rows; i++) {
+                if (i == r) continue;
+                val = matrix.get(i, lead);
+
+                matrix = matrix.multiplyRow(r, val).addRow(i, r);
+            }
+            lead++;
+        }
+        return matrix;
+    }
+
     toString() {
         let word = "";
 
@@ -151,6 +226,10 @@ class Matrix {
 
     static fastDet2d(arr1, arr2) {
         return arr1[0] * arr2[1] - arr1[1] * arr2[0];
+    }
+
+    static getEmptyMatrix() {
+        return new Matrix([]);
     }
 }
 

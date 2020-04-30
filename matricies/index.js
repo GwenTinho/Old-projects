@@ -15,4 +15,4 @@ let vector4 = new Vector([8, 5]);
 let A = new Matrix([vector1, vector2]);
 let B = new Matrix([vector3, vector4]);
 
-console.log(A.isEqual(A));
+console.log(A.toString());
