@@ -63,7 +63,7 @@ class Vector {
         if (this.getDimension() !== vector.getDimension()) return false;
 
         for (let i = 0; i < this.coordinates.length; i++) {
-            if (this.vector.coordinates[i] !== vector.coordinates[i]) return false;
+            if (this.coordinates[i] !== vector.coordinates[i]) return false;
         }
 
         return true;
