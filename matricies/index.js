@@ -6,12 +6,13 @@ import Plane from "./Plane";
 import Triangle from "./triangle";
 
 
-let point1 = new Point([0, 0, 0]);
-let point2 = new Point([0, 1, 0]);
-let point3 = new Point([2, 0, 0]);
+let vector1 = new Vector([5, 2]);
+let vector2 = new Vector([-3, 1]);
+let vector3 = new Vector([-4, 7]);
+let vector4 = new Vector([8, 5]);
 
-let point4 = new Point([1, 0, 0]);
 
-let T = new Triangle(point1, point2, point3);
+let A = new Matrix([vector1, vector2]);
+let B = new Matrix([vector3, vector4]);
 
-console.log(T.getAngles(), T.isPointInTriangle(point4));
+console.log(Matrix.getIdentityMatrix(5).multByReal(3).pow(3).toString());

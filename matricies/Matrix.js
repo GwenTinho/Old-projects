@@ -2,7 +2,7 @@ import Vector from "./Vector";
 
 class Matrix {
     constructor(vectors) {
-        this.vectors = vectors;
+        this.vectors = vectors; // matrix as array of column vectors
     }
 
     multByVector(vector) {
@@ -34,6 +34,99 @@ class Matrix {
         } else {
             console.log("TODO");
         }
+    }
+
+    get(row, colum) {
+        return this.vectors[colum].coordinates[row];
+    }
+
+    getDimensions() {
+        return [this.vectors.length, this.vectors[0].getDimension()];
+    }
+
+    isSquare() {
+        const dim = this.getDimensions();
+
+        return dim[0] === dim[1];
+    }
+
+    T() {
+        let rowVectors = [];
+
+        for (let i = 0; i < this.vectors[0].getDimension(); i++) { // rows
+            let coords = [];
+
+            for (let j = 0; j < this.vectors.length; j++) { // columns
+                coords.push(this.get(i, j));
+            }
+            rowVectors.push(new Vector(coords));
+        }
+
+        return new Matrix(rowVectors);
+    }
+
+    add(matrix) {
+        this.vectors.map((vector, i) => vector.add(matrix.vectors[i]));
+    }
+
+    mul(matrix) {
+        let transpose = this.T();
+
+        let colVectors = [];
+
+        for (let i = 0; i < this.vectors.length; i++) {
+            colVectors.push(transpose.multByVector(matrix.vectors[i]));
+        }
+
+        return new Matrix(colVectors);
+    }
+
+    copyInstance() {
+        return new Matrix(this.vectors);
+    }
+
+    pow(n) {
+        let accumulator = this.copyInstance();
+        let multiplicator = this.copyInstance();
+        if (this.isSquare()) {
+            for (let i = 0; i < n - 1; i++) {
+                accumulator = accumulator.mul(multiplicator);
+            }
+        }
+
+        return accumulator;
+    }
+
+    toString() {
+        let word = "";
+
+        for (let i = 0; i < this.vectors[0].getDimension(); i++) {
+            word += "[ ";
+            for (let j = 0; j < this.vectors.length; j++) {
+                word = word + ((j !== 0) ? ", " : "") + this.get(i, j);
+
+            }
+            word += " ]\n";
+        }
+
+        return word;
+    }
+
+    static getIdentityMatrix(n) {
+
+        let columnVectors = new Array(n);
+
+        for (let i = 0; i < n; i++) {
+            let columnVector = new Array(n);
+
+            for (let j = 0; j < n; j++) {
+                if (i === j) columnVector[j] = 1;
+                else columnVector[j] = 0;
+            }
+            columnVectors[i] = new Vector(columnVector);
+        }
+
+        return new Matrix(columnVectors);
     }
 
     static fastDet2d(arr1, arr2) {
