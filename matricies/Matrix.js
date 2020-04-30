@@ -40,14 +40,31 @@ class Matrix {
         return this.vectors[colum].coordinates[row];
     }
 
-    getDimensions() {
-        return [this.vectors.length, this.vectors[0].getDimension()];
+    getDimensions() { // row colomn
+        return [this.vectors[0].getDimension(), this.vectors.length];
+    }
+
+    isSameDimensions(matrix) {
+        const dim1 = this.getDimensions();
+        const dim2 = matrix.getDimensions();
+
+        return dim1[0] === dim2[0] && dim1[1] === dim2[1];
     }
 
     isSquare() {
         const dim = this.getDimensions();
 
         return dim[0] === dim[1];
+    }
+
+    isEqual(matrix) {
+        if (!this.isSameDimensions(matrix)) return false;
+
+        for (let i = 0; i < this.vectors.length; i++) {
+            if (!this.vectors[i].isEqual(matrix.vectors[i])) return false;
+        }
+
+        return true;
     }
 
     T() {
@@ -70,6 +87,9 @@ class Matrix {
     }
 
     mul(matrix) {
+
+        if (this.getDimensions()[1] !== matrix.getDimensions[0]) return null; // check if they can be multiplied
+
         let transpose = this.T();
 
         let colVectors = [];

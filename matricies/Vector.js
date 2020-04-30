@@ -59,6 +59,16 @@ class Vector {
         return this;
     }
 
+    isEqual(vector) {
+        if (this.getDimension() !== vector.getDimension()) return false;
+
+        for (let i = 0; i < this.coordinates.length; i++) {
+            if (this.vector.coordinates[i] !== vector.coordinates[i]) return false;
+        }
+
+        return true;
+    }
+
     static findAngle(v1, v2) {
         v1.dot(v2) / (v1.getNorm() * v2.getNorm());
     }
