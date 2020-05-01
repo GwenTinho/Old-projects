@@ -49,6 +49,7 @@ class Matrix {
     }
 
     inverse() {
+        if (this.det() == 0) return Matrix.getEmptyMatrix(); // very inefficient as  it calls rref twice, need to refactor a lot of code to improve efficiency
         return this.rref().inverse;
     }
 
@@ -135,6 +136,7 @@ class Matrix {
 
     swapCol(idx1, idx2) {
         const matrix = this.copyInstance();
+        if (idx1 === idx2) return matrix;
         const oldcol = matrix.vectors[idx1];
         matrix.vectors[idx1] = matrix.vectors[idx2];
         matrix.vectors[idx2] = oldcol;
@@ -143,6 +145,7 @@ class Matrix {
     }
 
     swapRow(idx1, idx2) {
+        if (idx1 === idx2) return this.copyInstance();
         return this.T().swapCol(idx1, idx2).T();
     }
 
