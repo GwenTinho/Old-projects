@@ -32,17 +32,24 @@ class Matrix {
                 this.vectors[1].coordinates[2] * this.vectors[2].coordinates[1] * this.vectors[0].coordinates[0] -
                 this.vectors[2].coordinates[2] * this.vectors[0].coordinates[1] * this.vectors[1].coordinates[0]
         } else {
-            let [matrixRREF, factors] = this.rref();
+            let {
+                matrix,
+                factors
+            } = this.rref();
             let [rows, columns] = this.getDimensions();
 
             let accumulator = 1 / factors;
 
             for (let i = 0; i < columns; i++) {
-                accumulator *= matrixRREF.get(i, i);
+                accumulator *= matrix.get(i, i);
             }
 
             return accumulator;
         }
+    }
+
+    inverse() {
+        return this.rref().inverse;
     }
 
     get(row, column) {
@@ -172,9 +179,13 @@ class Matrix {
     rref() { // implement inverse calculation // seems to work for now
 
         let matrix = this.copyInstance();
+
         const dims = this.getDimensions();
         const rows = dims[0];
         const columns = dims[1];
+
+        let iden = Matrix.getIdentityMatrix(rows);
+
         let factors = 1;
 
         let lead = 0;
@@ -195,10 +206,13 @@ class Matrix {
             }
 
             matrix = matrix.swapRow(i, r);
+            iden = iden.swapRow(i, r);
+
 
             let val = matrix.get(r, lead);
 
             matrix = matrix.multiplyRow(r, 1 / val);
+            iden = iden.multiplyRow(r, 1 / val);
 
             factors *= -1 / val;
 
@@ -207,10 +221,15 @@ class Matrix {
                 val = matrix.get(i, lead);
 
                 matrix = matrix.addMultRow(i, r, -val);
+                iden = iden.addMultRow(i, r, -val);
             }
             lead++;
         }
-        return [matrix, factors];
+        return {
+            matrix,
+            inverse: iden,
+            factors
+        };
     }
 
     toString() {

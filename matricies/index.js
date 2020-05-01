@@ -15,4 +15,4 @@ let vector4 = new Vector([0, 0, 1, -3]);
 
 let A = new Matrix([vector1, vector2, vector3, vector4]);
 
-console.log(A.det());
+console.log(A.inverse().toString());
