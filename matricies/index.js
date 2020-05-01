@@ -6,13 +6,13 @@ import Plane from "./Plane";
 import Triangle from "./triangle";
 
 
-let vector1 = new Vector([5, 2]);
-let vector2 = new Vector([-3, 1]);
-let vector3 = new Vector([-4, 7]);
-let vector4 = new Vector([8, 5]);
+let vector1 = new Vector([1, 4, 0, 0]);
+let vector2 = new Vector([1, 0, 0, 0]);
+let vector3 = new Vector([0, 0, -3, 0]);
+let vector4 = new Vector([0, 0, 1, -3]);
 
 
-let A = new Matrix([vector1, vector2]);
-let B = new Matrix([vector3, vector4]);
 
-console.log(A.rref().toString());
+let A = new Matrix([vector1, vector2, vector3, vector4]);
+
+console.log(A.det());

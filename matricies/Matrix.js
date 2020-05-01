@@ -21,7 +21,7 @@ class Matrix {
     }
 
     det() {
-        if (this.vectors.length !== this.vectors[0].coordinates.length) return NaN;
+        if (!this.isSquare()) return NaN;
         if (this.vectors.length === 2) return this.vectors[0].coordinates[0] * this.vectors[1].coordinates[1] - this.vectors[1].coordinates[0] * this.vectors[0].coordinates[1];
         if (this.vectors.length === 3) {
             return 0 +
@@ -32,7 +32,16 @@ class Matrix {
                 this.vectors[1].coordinates[2] * this.vectors[2].coordinates[1] * this.vectors[0].coordinates[0] -
                 this.vectors[2].coordinates[2] * this.vectors[0].coordinates[1] * this.vectors[1].coordinates[0]
         } else {
-            console.log("TODO");
+            let [matrixRREF, factors] = this.rref();
+            let [rows, columns] = this.getDimensions();
+
+            let accumulator = 1 / factors;
+
+            for (let i = 0; i < columns; i++) {
+                accumulator *= matrixRREF.get(i, i);
+            }
+
+            return accumulator;
         }
     }
 
@@ -150,18 +159,28 @@ class Matrix {
         return matrix;
     }
 
-    rref() {
+    addMultRow(oldRow, rowToBeAdded, scalar) {
+        const matrix = this.copyInstance();
+
+        for (let i = 0; i < matrix.vectors.length; i++) {
+            matrix.vectors[i].coordinates[oldRow] += matrix.vectors[i].coordinates[rowToBeAdded] * scalar;
+        }
+
+        return matrix;
+    }
+
+    rref() { // implement inverse calculation // seems to work for now
 
         let matrix = this.copyInstance();
         const dims = this.getDimensions();
         const rows = dims[0];
         const columns = dims[1];
-
+        let factors = 1;
 
         let lead = 0;
         for (let r = 0; r < rows; r++) {
             if (columns <= lead) {
-                return getEmptyMatrix();
+                return [Matrix.getEmptyMatrix(), NaN];
             }
             let i = r;
             while (matrix.get(i, lead) === 0) {
@@ -170,7 +189,7 @@ class Matrix {
                     i = r;
                     lead++;
                     if (columns == lead) {
-                        return getEmptyMatrix();
+                        return [Matrix.getEmptyMatrix(), NaN];
                     }
                 }
             }
@@ -179,17 +198,19 @@ class Matrix {
 
             let val = matrix.get(r, lead);
 
-            matrix = matrix.multiplyRow(r, val);
+            matrix = matrix.multiplyRow(r, 1 / val);
+
+            factors *= -1 / val;
 
             for (let i = 0; i < rows; i++) {
                 if (i == r) continue;
                 val = matrix.get(i, lead);
 
-                matrix = matrix.multiplyRow(r, val).addRow(i, r);
+                matrix = matrix.addMultRow(i, r, -val);
             }
             lead++;
         }
-        return matrix;
+        return [matrix, factors];
     }
 
     toString() {
