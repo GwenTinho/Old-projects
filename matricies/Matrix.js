@@ -7,6 +7,7 @@ class Matrix {
         this.det;
         this.inverse;
         this.rref;
+        this.isOrthogonal;
     }
 
     multByVector(vector) {
@@ -87,6 +88,7 @@ class Matrix {
         this.rref = rref;
         this.det = accumulator;
         this.inverse = (this.det == 0) ? Matrix.getEmptyMatrix() : iden;
+        this.isOrthogonal = this.isEqual(this.inverse);
     }
 
     get(row, column) {
