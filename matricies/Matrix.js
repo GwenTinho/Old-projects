@@ -3,6 +3,10 @@ import Vector from "./Vector";
 class Matrix {
     constructor(vectors) {
         this.vectors = vectors; // matrix as array of column vectors
+
+        this.det;
+        this.inverse;
+        this.rref;
     }
 
     multByVector(vector) {
@@ -20,37 +24,69 @@ class Matrix {
         return this;
     }
 
-    det() {
-        if (!this.isSquare()) return NaN;
-        if (this.vectors.length === 2) return this.vectors[0].coordinates[0] * this.vectors[1].coordinates[1] - this.vectors[1].coordinates[0] * this.vectors[0].coordinates[1];
-        if (this.vectors.length === 3) {
-            return 0 +
-                this.vectors[0].coordinates[0] * this.vectors[1].coordinates[1] * this.vectors[2].coordinates[2] +
-                this.vectors[1].coordinates[0] * this.vectors[2].coordinates[1] * this.vectors[0].coordinates[2] +
-                this.vectors[2].coordinates[0] * this.vectors[0].coordinates[1] * this.vectors[1].coordinates[2] -
-                this.vectors[0].coordinates[2] * this.vectors[1].coordinates[1] * this.vectors[2].coordinates[0] -
-                this.vectors[1].coordinates[2] * this.vectors[2].coordinates[1] * this.vectors[0].coordinates[0] -
-                this.vectors[2].coordinates[2] * this.vectors[0].coordinates[1] * this.vectors[1].coordinates[0]
-        } else {
-            let {
-                matrix,
-                factors
-            } = this.rref();
-            let [rows, columns] = this.getDimensions();
+    initValues() {
 
-            let accumulator = 1 / factors;
+        const dims = this.getDimensions();
+        const rows = dims[0];
+        const columns = dims[1];
 
-            for (let i = 0; i < columns; i++) {
-                accumulator *= matrix.get(i, i);
+        let rref = this.copyInstance();
+        let iden = Matrix.getIdentityMatrix(rows);
+
+        let factors = 1;
+        let lead = 0;
+
+        for (let r = 0; r < rows; r++) {
+            if (columns <= lead) {
+                this.rref = Matrix.getEmptyMatrix();
+                this.det = 0;
+                this.inverse = Matrix.getEmptyMatrix();
+                return;
+            }
+            let i = r;
+            while (rref.get(i, lead) === 0) {
+                i++;
+                if (rows == i) {
+                    i = r;
+                    lead++;
+                    if (columns == lead) {
+                        this.rref = Matrix.getEmptyMatrix();
+                        this.det = 0;
+                        this.inverse = Matrix.getEmptyMatrix();
+                        return;
+                    }
+                }
             }
 
-            return accumulator;
-        }
-    }
+            rref = rref.swapRow(i, r);
+            iden = iden.swapRow(i, r);
 
-    inverse() {
-        if (this.det() == 0) return Matrix.getEmptyMatrix(); // very inefficient as  it calls rref twice, need to refactor a lot of code to improve efficiency
-        return this.rref().inverse;
+            let val = rref.get(r, lead);
+
+            rref = rref.multiplyRow(r, 1 / val);
+            iden = iden.multiplyRow(r, 1 / val);
+
+            factors *= -val;
+
+            for (let i = 0; i < rows; i++) {
+                if (i == r) continue;
+                val = rref.get(i, lead);
+
+                rref = rref.addMultRow(i, r, -val);
+                iden = iden.addMultRow(i, r, -val);
+            }
+            lead++;
+        }
+
+        let accumulator = factors;
+
+        for (let i = 0; i < columns; i++) {
+            accumulator *= rref.get(i, i);
+        }
+
+        this.rref = rref;
+        this.det = accumulator;
+        this.inverse = (this.det == 0) ? Matrix.getEmptyMatrix() : iden;
     }
 
     get(row, column) {
@@ -177,62 +213,6 @@ class Matrix {
         }
 
         return matrix;
-    }
-
-    rref() { // implement inverse calculation // seems to work for now
-
-        let matrix = this.copyInstance();
-
-        const dims = this.getDimensions();
-        const rows = dims[0];
-        const columns = dims[1];
-
-        let iden = Matrix.getIdentityMatrix(rows);
-
-        let factors = 1;
-
-        let lead = 0;
-        for (let r = 0; r < rows; r++) {
-            if (columns <= lead) {
-                return [Matrix.getEmptyMatrix(), NaN];
-            }
-            let i = r;
-            while (matrix.get(i, lead) === 0) {
-                i++;
-                if (rows == i) {
-                    i = r;
-                    lead++;
-                    if (columns == lead) {
-                        return [Matrix.getEmptyMatrix(), NaN];
-                    }
-                }
-            }
-
-            matrix = matrix.swapRow(i, r);
-            iden = iden.swapRow(i, r);
-
-
-            let val = matrix.get(r, lead);
-
-            matrix = matrix.multiplyRow(r, 1 / val);
-            iden = iden.multiplyRow(r, 1 / val);
-
-            factors *= -1 / val;
-
-            for (let i = 0; i < rows; i++) {
-                if (i == r) continue;
-                val = matrix.get(i, lead);
-
-                matrix = matrix.addMultRow(i, r, -val);
-                iden = iden.addMultRow(i, r, -val);
-            }
-            lead++;
-        }
-        return {
-            matrix,
-            inverse: iden,
-            factors
-        };
     }
 
     toString() {
