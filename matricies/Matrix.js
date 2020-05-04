@@ -21,12 +21,10 @@ class Matrix {
     }
 
     multByReal(number) {
-        this.vectors.map(vector => vector.mult(number));
-        return this;
+        return new Matrix(this.copyInstance().vectors.map(vector => vector.mult(number)));
     }
 
     initValues() {
-
         const dims = this.getDimensions();
         const rows = dims[0];
         const columns = dims[1];
@@ -79,6 +77,8 @@ class Matrix {
             lead++;
         }
 
+
+
         let accumulator = factors;
 
         for (let i = 0; i < columns; i++) {
@@ -89,6 +89,7 @@ class Matrix {
         this.det = accumulator;
         this.inverse = (this.det == 0) ? Matrix.getEmptyMatrix() : iden;
         this.isOrthogonal = this.isEqual(this.inverse);
+        return this;
     }
 
     get(row, column) {
@@ -123,13 +124,14 @@ class Matrix {
     }
 
     T() {
+        let matrix = this.copyInstance();
         let rowVectors = [];
 
-        for (let i = 0; i < this.vectors[0].getDimension(); i++) { // rows
+        for (let i = 0; i < matrix.vectors[0].getDimension(); i++) { // rows
             let coords = [];
 
-            for (let j = 0; j < this.vectors.length; j++) { // columns
-                coords.push(this.get(i, j));
+            for (let j = 0; j < matrix.vectors.length; j++) { // columns
+                coords.push(matrix.get(i, j));
             }
             rowVectors.push(new Vector(coords));
         }
@@ -138,12 +140,12 @@ class Matrix {
     }
 
     add(matrix) {
-        this.vectors.map((vector, i) => vector.add(matrix.vectors[i]));
+        return this.copyInstance().vectors.map((vector, i) => vector.add(matrix.vectors[i]));
     }
 
     mul(matrix) {
 
-        if (this.getDimensions()[1] !== matrix.getDimensions[0]) return null; // check if they can be multiplied
+        if (this.getDimensions()[1] !== matrix.getDimensions()[0]) return Matrix.getEmptyMatrix(); // check if they can be multiplied
 
         let transpose = this.T();
 
@@ -157,7 +159,11 @@ class Matrix {
     }
 
     copyInstance() {
-        return new Matrix(this.vectors);
+        let vectors = [];
+
+        this.vectors.forEach(vector => vectors.push(new Vector([...vector.coordinates])));
+
+        return new Matrix(vectors);
     }
 
     pow(n) {
@@ -211,13 +217,16 @@ class Matrix {
         const matrix = this.copyInstance();
 
         for (let i = 0; i < matrix.vectors.length; i++) {
-            matrix.vectors[i].coordinates[oldRow] += matrix.vectors[i].coordinates[rowToBeAdded] * scalar;
+            matrix.vectors[i].coordinates[oldRow] += matrix.get(rowToBeAdded, i) * scalar;
         }
 
         return matrix;
     }
 
     toString() {
+
+        if (this.vectors.length === 0) return "[[]]";
+
         let word = "";
 
         for (let i = 0; i < this.vectors[0].getDimension(); i++) {
