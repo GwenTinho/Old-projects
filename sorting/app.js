@@ -52,23 +52,41 @@ function randomIntArray(n, max) {
 }
 
 function selectionSort(array) {
-    let orderCount = 0;
-    while (orderCount < array.length) {
 
-        let smVal = array[orderCount];
-        let index = orderCount;
-        for (let j = orderCount; j < array.length; j++) {
-            if (smVal > array[j]) {
-                index = j;
-                smVal = array[j];
-            }
+    let newArr = [...array];
+
+    for (let i = 0; i < newArr.length - 1; i++) {
+        let min = i;
+
+        for (let j = i + 1; j < newArr.length; j++) {
+            if (newArr[j] < newArr[min]) min = j;
         }
-        temp = array[orderCount];
-        array[orderCount] = smVal;
-        array[index] = temp;
 
-        orderCount += 1;
+        if (min !== i) {
+            temp = newArr[min];
+            newArr[min] = newArr[index];
+            newArr[index] = temp;
+        }
     }
 
-    return array;
+    return newArr;
+}
+
+function fisherShuffle(array) {
+
+    let newArr = [...array]; // making the function immutable
+
+    for (let index = newArr.length - 1; index > 0; index--) {
+        const randomIndex = Math.floor(Math.random() * i);
+
+        // now swap i and j essentially randomizing the array from right to left like an inverse selection sort
+
+        if (randomIndex !== i) {
+            temp = newArr[randomIndex];
+            newArr[randomIndex] = newArr[index];
+            newArr[index] = temp;
+        }
+    }
+
+    return newArr;
 }
