@@ -1,4 +1,6 @@
 import Vector from "./Vector";
+import newtonsMethod from "./helperFunctions/newtonsMethod";
+import rootProduct from "./helperFunctions/rootProduct";
 
 class Matrix {
     constructor(vectors) {
@@ -77,8 +79,6 @@ class Matrix {
             lead++;
         }
 
-
-
         let accumulator = factors;
 
         for (let i = 0; i < columns; i++) {
@@ -88,7 +88,7 @@ class Matrix {
         this.rref = rref;
         this.det = accumulator;
         this.inverse = (this.det == 0) ? Matrix.getEmptyMatrix() : iden;
-        this.isOrthogonal = this.isEqual(this.inverse);
+        this.isOrthogonal = this.isEqual(this.inverse.T());
         return this;
     }
 
@@ -140,7 +140,11 @@ class Matrix {
     }
 
     add(matrix) {
-        return this.copyInstance().vectors.map((vector, i) => vector.add(matrix.vectors[i]));
+        return new Matrix(this.copyInstance().vectors.map((vector, i) => vector.add(matrix.vectors[i])));
+    }
+
+    sub(matrix) {
+        return new Matrix(this.copyInstance().vectors.map((vector, i) => vector.sub(matrix.vectors[i])));
     }
 
     mul(matrix) {
@@ -223,6 +227,45 @@ class Matrix {
         return matrix;
     }
 
+    // my own very brute force way of getting one eigenvalue, there's still ways to go but it'll do for now
+    // a fun way would be to find one eigenvalue then divide the determinant function by (lambda - found eigenvalue)
+
+
+
+    getEigenValues() {
+        if (!this.isSquare()) return [];
+
+        const n = this.getDimensions()[0];
+        const inital = 2;
+
+        let eigenValues = []; // divide the characteristic poly fn through (lambda - previous eigenvalues) to remove those solutions.
+
+        // breaks for complex solutions
+
+        for (let index = 0; index < n; index++) {
+
+            if (eigenValues.length == 0) {
+                const eigenValue = newtonsMethod(lambda => Matrix.getCharacteristicPolyAt(lambda, this), inital, 1e-8, 10)
+                eigenValues.push(eigenValue);
+            } else {
+                const eigenValue = newtonsMethod(lambda => (Matrix.getCharacteristicPolyAt(lambda, this) / rootProduct(lambda, eigenValues)), inital, 1e-8, 10)
+                eigenValues.push(eigenValue);
+            }
+        }
+
+        return eigenValues;
+    }
+
+    trace() {
+        let sum = 0;
+
+        for (let i = 0; i < columns; i++) {
+            sum += this.get(i, i);
+        }
+
+        return sum;
+    }
+
     toString() {
 
         if (this.vectors.length === 0) return "[[]]";
@@ -241,6 +284,20 @@ class Matrix {
         return word;
     }
 
+    static getCharacteristicPolyAt(lambda, matrix) {
+        if (!matrix.isSquare()) return NaN;
+
+        let A = matrix;
+
+        const n = A.getDimensions()[0];
+
+        let AminusLambda = A.sub(Matrix.getIdentityMatrixMultiple(n, lambda));
+
+        AminusLambda.initValues();
+
+        return AminusLambda.det;
+    }
+
     static getIdentityMatrix(n) {
 
         let columnVectors = new Array(n);
@@ -250,6 +307,22 @@ class Matrix {
 
             for (let j = 0; j < n; j++) {
                 if (i === j) columnVector[j] = 1;
+                else columnVector[j] = 0;
+            }
+            columnVectors[i] = new Vector(columnVector);
+        }
+
+        return new Matrix(columnVectors);
+    }
+
+    static getIdentityMatrixMultiple(n, lambda) {
+        let columnVectors = new Array(n);
+
+        for (let i = 0; i < n; i++) {
+            let columnVector = new Array(n);
+
+            for (let j = 0; j < n; j++) {
+                if (i === j) columnVector[j] = lambda;
                 else columnVector[j] = 0;
             }
             columnVectors[i] = new Vector(columnVector);

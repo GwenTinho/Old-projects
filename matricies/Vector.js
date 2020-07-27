@@ -59,6 +59,15 @@ class Vector {
         return this;
     }
 
+    sub(vector) {
+        if (vector.getDimension() !== this.getDimension()) return Vector.nullVector();
+
+        for (let i = 0; i < this.getDimension(); i++) {
+            this.coordinates[i] -= vector.coordinates[i];
+        }
+        return this;
+    }
+
     isEqual(vector) {
         if (this.getDimension() !== vector.getDimension()) return false;
 
