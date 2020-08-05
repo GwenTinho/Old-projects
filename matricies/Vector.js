@@ -68,6 +68,14 @@ class Vector {
         return this;
     }
 
+    negate(row) {
+        this.coordinates[row] = -this.coordinates[row];
+    }
+
+    set(row, value) {
+        this.coordinates[row] = value;
+    }
+
     isEqual(vector) {
         if (this.getDimension() !== vector.getDimension()) return false;
 

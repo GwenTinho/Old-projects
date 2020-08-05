@@ -96,6 +96,32 @@ class Matrix {
         return this.vectors[column].coordinates[row];
     }
 
+    getCol(col) {
+        return new Vector([...this.vectors[col].coordinates])
+    }
+
+    set(row, column, value) {
+        this.vectors[column].set(row, value);
+    }
+
+    negate(row, column) {
+        this.vectors[column].negate(row);
+    }
+
+    truncate(n) {
+        let [rows, cols] = this.getDimensions();
+        let outM = this.copyInstance();
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const val = this.get(r, c);
+                outM.set(r, c, Math.floor(val * 10 ** n) / 10 ** n);
+            }
+        }
+
+        return outM;
+    }
+
     getDimensions() { // row colomn
         return [this.vectors[0].getDimension(), this.vectors.length];
     }
