@@ -45,6 +45,10 @@ class Vector {
         return Math.sqrt(this.getNormSquared());
     }
 
+    asUnit() {
+        return this.mult(1 / this.getNorm());
+    }
+
     mult(number) {
         this.coordinates = this.coordinates.map(coord => coord * number);
         return this;
@@ -74,6 +78,14 @@ class Vector {
 
     set(row, value) {
         this.coordinates[row] = value;
+    }
+
+    get(row) {
+        return this.coordinates[row];
+    }
+
+    addToRow(row, value) {
+        this.set(row, this.get(row) + value);
     }
 
     isEqual(vector) {
