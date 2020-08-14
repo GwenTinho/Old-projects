@@ -86,6 +86,7 @@ class Vector {
 
     addToRow(row, value) {
         this.set(row, this.get(row) + value);
+        return this;
     }
 
     isEqual(vector) {
@@ -96,6 +97,10 @@ class Vector {
         }
 
         return true;
+    }
+
+    copyInstance() {
+        return new Vector([...this.coordinates]);
     }
 
     static findAngle(v1, v2) {

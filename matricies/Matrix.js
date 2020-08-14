@@ -285,7 +285,7 @@ class Matrix {
     trace() {
         let sum = 0;
 
-        for (let i = 0; i < columns; i++) {
+        for (let i = 0; i < this.getDimensions()[0]; i++) {
             sum += this.get(i, i);
         }
 
