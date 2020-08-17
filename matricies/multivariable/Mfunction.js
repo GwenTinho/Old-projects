@@ -8,13 +8,18 @@ class MFunction {
         this.outputDimensions;
         this.isParamFn = inputDimensions === 1;
         this.calc;
-        this.getTotalDerivativeAt;
+        this.isJacobianSet = false;
+        this.getJacobianAt;
         this.getGradientAt;
+        this.isHessianSet = false;
+        this.getHessianAt;
+        this.isScalarValued;
     }
 
     setOutput(functionArray) {
         this.outputDimensions = functionArray.length;
         if (this.outputDimensions === 1) {
+            this.isScalarValued = true;
             this.calc = t => { // t can be a vector or scalar
                 return functionArray[0](t);
             }
@@ -36,22 +41,23 @@ class MFunction {
         }
     }
 
-    calcTotalDerivative() {
+    initJacobian() {
         if (!this.isOutputSet) {
-            console.log(new Error("invalid structure for total deriv"));
-        } {
+            console.log(new Error("invalid structure for Jacobian"));
+        } else {
             if (this.isParamFn) {
-                this.getTotalDerivativeAt = t => MFunction.paramDeriv(t, this.calc);
+                this.getJacobianAt = t => MFunction.paramDeriv(t, this.calc);
             } else {
-                this.getTotalDerivativeAt = t => {
+                this.getJacobianAt = v => {
                     let vectors = [];
                     for (let index = 0; index < this.inputDimensions; index++) {
-                        vectors.push(this.partialDerivative(index)(t));
+                        vectors.push(this.partialDerivative(index)(v));
                     }
                     return new Matrix(vectors);
                 }
             }
-            if (this.outputDimensions === 1) this.getGradientAt = t => this.getTotalDerivativeAt().T().getCol(0);
+            if (this.isScalarValued) this.getGradientAt = v => this.getJacobianAt(v).T().getCol(0);
+            this.isJacobianSet = true;
         }
     }
 
@@ -89,8 +95,34 @@ class MFunction {
 
     getDivergence(t) {
         if (!this.isOutputSet) return new Error("invalid structure for divergence");
+        if (!this.isJacobianSet) this.initJacobian();
 
-        return this.getTotalDerivativeAt(t).trace();
+        return this.getJacobianAt(t).trace();
+    }
+
+    initHessian() {
+        if (!this.isOutputSet || !this.isScalarValued) return new Error("invalid structure for Hessian");
+
+        if (!this.isJacobianSet) this.initJacobian();
+
+        let hessianGenerator = new MFunction(this.inputDimensions);
+
+        let gradientFnArray = [];
+
+        for (let index = 0; index < this.inputDimensions; index++) {
+            gradientFnArray.push(v => this.getGradientAt(v).get(index));
+        }
+
+        hessianGenerator.setOutput(gradientFnArray);
+
+        hessianGenerator.initJacobian();
+
+        this.getHessianAt = hessianGenerator.getJacobianAt;
+        this.isHessianSet = true; // this needs a lot of testing
+    }
+
+    secondDeriveTest() {
+        // research this and make it work
     }
 
     static paramDeriv(t, paramFn) { // R -> R^n // dont use repeated

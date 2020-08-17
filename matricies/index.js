@@ -14,6 +14,6 @@ f.setOutput([
     v => v.get(1) ** 2 - v.get(0) ** 2
 ]);
 
-f.calcTotalDerivative()
+f.initJacobian()
 
 console.log(f.getDivergence(new Vector([0, -4])));
